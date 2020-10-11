@@ -2,6 +2,7 @@ package jonchaf.algorithms;
 
 import cusack.hcg.games.weighted.WeightedInstance;
 import cusack.hcg.graph.algorithm.AbstractAlgorithm;
+import cusack.hcg.graph.algorithm.util.PermutationGenerator;
 
 /**
  * Insert comment here about what your algorithm does.
@@ -54,6 +55,8 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	// keep track of the number of operations your algorithm uses by modifying
 	// the value of numberOfOperations. Unless otherwise specified, you may
 	// interpret "number of operations" as appropriate for your problem.
+	
+	private String resultString;
 
 	public TSP() {
 		// You must have a default constructor in this class, even if it does
@@ -76,7 +79,28 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	 */
 	@Override
 	public void runAlgorithm() {
-		// Implement your algorithm here!
+		int[][] A = puzzle.getAdjacencyMatrix();
+		if (A.length <= 10) {
+			// generate all permutations; find the one with the minimum cost
+			int bestCost = -1;
+			int[] bestPath = null;
+			PermutationGenerator pg = new PermutationGenerator(A.length);
+			while (pg.hasNext()) {
+				int[] path = pg.next();
+				int cost = 0;
+				// add up the lengths of the edges of the path
+				for (int i = 1; i < path.length; i++)
+					cost += A[path[i - 1]][path[i]];
+				// make it a cycle
+				cost += A[path[path.length - 1]][path[0]];
+				if (cost < bestCost || bestCost == -1) {
+					bestCost = cost;
+					bestPath = path;
+				}
+			}
+			if (bestPath != null)
+				resultString = getResultString(bestCost, bestPath);
+		}
 	}
 
 	/**
@@ -103,7 +127,7 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	public String getResult() {
 		// Make sure you change this one so that it returns something
 		// meaningful.
-		return null;
+		return resultString;
 	}
 
 	/**
@@ -180,6 +204,17 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	@Override
 	public void parseArguments(String arg0) throws RuntimeException {
 		// TODO Auto-generated method stub
+	}
+	
+	private String getResultString(int cost, int[] path) {
+		StringBuffer sb = new StringBuffer("");
+		sb.append(cost);
+		sb.append(":");
+		for (int i = 0; i < path.length - 1; i++) {
+			sb.append(path[i] + " ");
+		}
+		sb.append(path[path.length - 1]);
+		return sb.toString();
 	}
 	
 }
