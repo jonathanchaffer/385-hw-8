@@ -55,7 +55,7 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	// keep track of the number of operations your algorithm uses by modifying
 	// the value of numberOfOperations. Unless otherwise specified, you may
 	// interpret "number of operations" as appropriate for your problem.
-	
+
 	private String resultString;
 
 	public TSP() {
@@ -100,6 +100,34 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 			}
 			if (bestPath != null)
 				resultString = getResultString(bestCost, bestPath);
+		} else {
+			// use a greedy approach to find a good, but not necessarily optimal
+			// solution
+			boolean[] visited = new boolean[A.length];
+			for (int i = 0; i < A.length; i++)
+				visited[i] = false;
+
+			// at each step, find the nearest non-visited node and add it to the
+			// path
+			int cost = 0;
+			int current = 0;
+			int[] path = new int[A.length];
+			for (int i = 0; i < A.length - 1; i++) {
+				visited[current] = true;
+				int next = -1;
+				for (int j = 0; j < A.length; j++) {
+					if (!visited[j] && (next == -1 || A[current][j] < A[current][next])) {
+						next = j;
+					}
+				}
+				cost += A[current][next];
+				path[i + 1] = next;
+				current = next;
+			}
+			// make it a cycle
+			cost += A[path[path.length - 1]][path[0]];
+			if (path != null)
+				resultString = getResultString(cost, path);
 		}
 	}
 
@@ -177,24 +205,25 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	/**
 	 * This should return the class object representing the subclass of
 	 * WeightedInstance that this algorithm runs on. If you change what subclass
-	 * of WeightedInstance your algorithm is applicable for, those changes must be
-	 * reflected in the return type of this method, the Class object that is
+	 * of WeightedInstance your algorithm is applicable for, those changes must
+	 * be reflected in the return type of this method, the Class object that is
 	 * returned, and the parameter in the class signature.
 	 * 
-	 * @return The class object representing the subclass of WeightedInstance that
-	 *         this algorithm runs on.
+	 * @return The class object representing the subclass of WeightedInstance
+	 *         that this algorithm runs on.
 	 */
 	@Override
 	public Class<WeightedInstance> getProblemType() {
 		return WeightedInstance.class;
 	}
-	
+
 	/**
 	 * (Hopefully) gracefully stop the computation.
 	 */
 	@Override
 	public void quit() {
 	}
+
 	@Override
 	public String argumentFormat() {
 		// TODO Auto-generated method stub
@@ -205,7 +234,7 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 	public void parseArguments(String arg0) throws RuntimeException {
 		// TODO Auto-generated method stub
 	}
-	
+
 	private String getResultString(int cost, int[] path) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append(cost);
@@ -216,5 +245,5 @@ public class TSP extends AbstractAlgorithm<WeightedInstance> {
 		sb.append(path[path.length - 1]);
 		return sb.toString();
 	}
-	
+
 }
